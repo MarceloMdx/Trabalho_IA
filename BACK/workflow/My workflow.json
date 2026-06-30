@@ -1,0 +1,199 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "pedido-ia",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "816b85c4-ab34-4213-bc9d-6f921c37eefd",
+      "name": "Webhook",
+      "webhookId": "fe75af0c-192a-41ba-bb47-15223c3a5480"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Você é um consultor de vendas de uma loja virtual.\n\nAnalise o pedido abaixo.\n\nCliente: {{$json.body.cliente}}\nCidade: {{$json.body.cidade}}\nValor Total: R$ {{$json.body.valorTotal}}\nProdutos: {{$json.body.produtos.join(\", \")}}\n\nConsidere as seguintes regras:\n- Compras acima de R$ 700 podem ser classificadas como \"Cliente Premium\".\n- Compras abaixo desse valor podem ser classificadas como \"Cliente Comum\".\n- Recomende produtos compatíveis com os itens comprados.\n- Caso seja um Cliente Premium, forneça o cupom \"TECH10\". Caso contrário, deixe o cupom vazio.\n- Gere uma mensagem personalizada agradecendo a compra.\n\nIMPORTANTE:\nRetorne SOMENTE um JSON válido, sem explicações, sem markdown e sem texto adicional.\n\nFormato da resposta:\n\n{\n  \"perfilCliente\": \"Cliente Premium\",\n  \"recomendacoes\": \"Headset Gamer, SSD 1TB, Mochila para Notebook\",\n  \"cupomDesconto\": \"TECH10\",\n  \"mensagemIA\": \"Obrigado pela compra! Você ganhou um cupom de 10% para sua próxima compra.\"\n}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "6db11da1-f7d6-4f8a-b5de-db2a8d36d02e",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        80,
+        208
+      ],
+      "id": "9d1516f7-ea2c-4ac7-8b75-593d1079b527",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "MHFJebUau2oMugXP",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=http://localhost:8080/pedidos/{{$('Webhook').item.json.body.id}}/analise",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "perfilCliente",
+              "value": "={{$json.output.perfilCliente}}"
+            },
+            {
+              "name": "recomendacoes",
+              "value": "={{$json.output.recomendacoes}}"
+            },
+            {
+              "name": "cupomDesconto",
+              "value": "={{$json.output.cupomDesconto}}"
+            },
+            {
+              "name": "mensagemIA",
+              "value": "={{$json.output.mensagemIA}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        656,
+        32
+      ],
+      "id": "1248b9d7-4998-4245-a3cc-5889b1c8b2f6",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"perfilCliente\": \"Cliente Premium\",\n  \"recomendacoes\": \"Headset Gamer, SSD 1TB, Mochila para Notebook\",\n  \"cupomDesconto\": \"TECH10\",\n  \"mensagemIA\": \"Obrigado pela compra! Você ganhou um cupom de 10% para sua próxima compra.\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        384,
+        208
+      ],
+      "id": "3989d36d-63a0-4f4b-a9e9-433f8e4b4660",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        384,
+        352
+      ],
+      "id": "bbbe88a5-dc78-4725-86c2-20400f53d780",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "MHFJebUau2oMugXP",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "080d6abb-07e8-466c-a129-9f786188a110",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "990a827596a2f0c059ee06bc8a2e79afbe49677ed5069e66c522f759780f615f"
+  },
+  "nodeGroups": [],
+  "id": "EpYSNAkcwlsZP0si",
+  "tags": []
+}

@@ -1,15 +1,13 @@
-import { calcularTotal, formatarMoeda, obterNomesProdutos } from '../utils/format';
+import { calcularTotal, formatarMoeda } from '../utils/format';
 
 function Carrinho({ produtos, carrinho, onRemover, desabilitado, variant = 'embedded' }) {
-  const nomes = obterNomesProdutos(produtos, carrinho);
   const total = calcularTotal(produtos, carrinho);
   const isPage = variant === 'page';
 
   return (
     <section
       className={isPage ? 'carrinho-page' : 'checkout-form__cart'}
-      aria-labelledby={isPage ? undefined : 'cart-heading'}
-      aria-label={isPage ? 'Itens do carrinho' : undefined}
+      aria-labelledby={isPage ? 'carrinho-heading' : 'cart-heading'}
     >
       {!isPage && (
         <h3 id="cart-heading" className="checkout-form__subtitle">
@@ -23,7 +21,7 @@ function Carrinho({ produtos, carrinho, onRemover, desabilitado, variant = 'embe
         </p>
       ) : (
         <>
-          <ul className="cart-list" aria-label="Itens do carrinho">
+          <ul className="cart-list">
             {carrinho.map((id) => {
               const produto = produtos.find((item) => item.id === id);
               if (!produto) return null;
@@ -47,16 +45,7 @@ function Carrinho({ produtos, carrinho, onRemover, desabilitado, variant = 'embe
           </ul>
 
           <p className="cart-total">
-            <strong>Total:</strong>{' '}
-            <span aria-label={`Total do pedido: ${formatarMoeda(total)}`}>
-              {formatarMoeda(total)}
-            </span>
-          </p>
-
-          <p className="sr-only" aria-live="polite">
-            Carrinho com {carrinho.length}{' '}
-            {carrinho.length === 1 ? 'item' : 'itens'}: {nomes.join(', ')}. Total{' '}
-            {formatarMoeda(total)}.
+            <strong>Total:</strong> {formatarMoeda(total)}
           </p>
         </>
       )}

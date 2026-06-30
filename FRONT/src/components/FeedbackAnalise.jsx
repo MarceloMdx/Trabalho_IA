@@ -22,7 +22,9 @@ function FeedbackAnalise({ dados }) {
   return (
     <article className="feedback" aria-labelledby="feedback-title">
       <header className="feedback__header">
+        {/* Texto "Concluído" + ícone evitam comunicar sucesso só pela cor verde */}
         <h3 id="feedback-title" className="feedback__title">
+          <span className="feedback__status-icon" aria-hidden="true">✓</span>
           Pedido #{id} — Análise concluída
         </h3>
         {cliente && (
@@ -40,7 +42,7 @@ function FeedbackAnalise({ dados }) {
       </header>
 
       {mensagemIA && (
-        <blockquote className="feedback__mensagem" cite="">
+        <blockquote className="feedback__mensagem">
           <p>
             <span className="sr-only">Mensagem personalizada da IA: </span>
             {mensagemIA}
@@ -49,14 +51,12 @@ function FeedbackAnalise({ dados }) {
       )}
 
       {cupomDesconto && (
-        <div className="feedback__cupom" role="region" aria-labelledby="cupom-label">
-          <span id="cupom-label" className="feedback__label">
+        <section className="feedback__cupom" aria-labelledby="cupom-label">
+          <h4 id="cupom-label" className="feedback__label">
             Cupom de desconto
-          </span>
-          <code className="feedback__codigo" aria-label={`Código do cupom: ${cupomDesconto}`}>
-            {cupomDesconto}
-          </code>
-        </div>
+          </h4>
+          <code className="feedback__codigo">{cupomDesconto}</code>
+        </section>
       )}
 
       {listaRecomendacoes.length > 0 && (
