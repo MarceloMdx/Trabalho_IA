@@ -9,11 +9,13 @@ function Layout() {
     <>
       <SkipLink />
 
+      {/* div wrapper sem tag semântica equivalente — agrupa header, nav, main e footer */}
       <div className="app">
         <Header />
         <Nav />
 
-        <main id="conteudo-principal" className="app__main" role="main" tabIndex={-1}>
+        {/* tabIndex={-1} permite receber foco programático após o skip link */}
+        <main id="conteudo-principal" className="app__main" tabIndex={-1}>
           <Outlet />
         </main>
 

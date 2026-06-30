@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { calcularTotal, obterNomesProdutos } from '../utils/format';
 
 function CheckoutForm({ produtos, carrinho, onSubmit, desabilitado }) {
   const [cliente, setCliente] = useState('');
   const [cidade, setCidade] = useState('');
   const [erros, setErros] = useState({});
+  const clienteRef = useRef(null);
+  const cidadeRef = useRef(null);
 
   const valorTotal = calcularTotal(produtos, carrinho);
 
@@ -20,13 +22,23 @@ function CheckoutForm({ produtos, carrinho, onSubmit, desabilitado }) {
     }
 
     setErros(novosErros);
-    return Object.keys(novosErros).length === 0;
+    return novosErros;
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (!validarCampos()) {
+    const novosErros = validarCampos();
+
+    if (Object.keys(novosErros).length > 0) {
+      // Foco no primeiro campo inválido após re-render com mensagens de erro
+      requestAnimationFrame(() => {
+        if (novosErros.cliente) {
+          clienteRef.current?.focus();
+        } else if (novosErros.cidade) {
+          cidadeRef.current?.focus();
+        }
+      });
       return;
     }
 
@@ -63,6 +75,7 @@ function CheckoutForm({ produtos, carrinho, onSubmit, desabilitado }) {
             <span className="sr-only"> (obrigatório)</span>
           </label>
           <input
+            ref={clienteRef}
             id="cliente"
             name="cliente"
             type="text"
@@ -81,7 +94,8 @@ function CheckoutForm({ produtos, carrinho, onSubmit, desabilitado }) {
           />
           {erros.cliente && (
             <p className="form-error" id="erro-cliente" role="alert">
-              {erros.cliente}
+              {/* Ícone via CSS (::before) reforça erro além da cor vermelha */}
+              <span className="form-error__text">{erros.cliente}</span>
             </p>
           )}
         </div>
@@ -95,6 +109,7 @@ function CheckoutForm({ produtos, carrinho, onSubmit, desabilitado }) {
             <span className="sr-only"> (obrigatório)</span>
           </label>
           <input
+            ref={cidadeRef}
             id="cidade"
             name="cidade"
             type="text"
@@ -113,19 +128,20 @@ function CheckoutForm({ produtos, carrinho, onSubmit, desabilitado }) {
           />
           {erros.cidade && (
             <p className="form-error" id="erro-cidade" role="alert">
-              {erros.cidade}
+              <span className="form-error__text">{erros.cidade}</span>
             </p>
           )}
         </div>
       </fieldset>
 
+      {/* aria-busy comunica estado de carregamento; texto alterna para leitores de tela */}
       <button
         type="submit"
         className="btn btn--primary"
         disabled={desabilitado}
         aria-busy={desabilitado}
       >
-        {desabilitado ? 'Processando...' : 'Confirmar Pedido'}
+        {desabilitado ? 'Processando pedido…' : 'Confirmar Pedido'}
       </button>
     </form>
   );

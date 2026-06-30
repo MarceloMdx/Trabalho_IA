@@ -1,6 +1,6 @@
 function Footer() {
   return (
-    <footer className="app__footer" role="contentinfo">
+    <footer className="app__footer">
       <p>Integração: React · Spring Boot · n8n · IA</p>
     </footer>
   );

@@ -73,7 +73,7 @@ function CheckoutPage() {
           {!carregando && !erro && analiseIA && <FeedbackAnalise dados={analiseIA} />}
 
           {!carregando && !erro && !analiseIA && (
-            <p className="placeholder">
+            <p className="placeholder" role="status">
               Confirme o pedido para ver o perfil do cliente, recomendações e cupom gerados
               pelo n8n.
             </p>

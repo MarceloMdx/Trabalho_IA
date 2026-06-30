@@ -17,10 +17,7 @@ function ResumoPedido({ produtos, carrinho }) {
       </ul>
 
       <p className="resumo-pedido__total">
-        <strong>Total:</strong>{' '}
-        <span aria-label={`Total do pedido: ${formatarMoeda(total)}`}>
-          {formatarMoeda(total)}
-        </span>
+        <strong>Total:</strong> {formatarMoeda(total)}
       </p>
     </section>
   );

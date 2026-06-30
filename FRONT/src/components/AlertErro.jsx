@@ -1,6 +1,6 @@
 function AlertErro({ mensagem }) {
   return (
-    <div className="alert alert--error" role="alert" aria-live="assertive">
+    <div className="alert alert--error" role="alert">
       <strong>Erro ao processar pedido:</strong>
       <p>{mensagem}</p>
     </div>
